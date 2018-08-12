@@ -58,4 +58,8 @@ const inquirer = require('inquirer');
        const time = new Date().toLocaleTimeString();
        console.log(day, time)
    }
+
+   getContactCount(){
+     return this.contacts.length;
+   }
  }
