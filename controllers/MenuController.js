@@ -1,4 +1,5 @@
 const inquirer = require('inquirer');
+const ContactController = require("./ContactController");
 
  module.exports = class MenuController {
    constructor(){
@@ -9,12 +10,13 @@ const inquirer = require('inquirer');
           message: "Please choose from an option below: ",
           choices: [
             "Add new contact",
+            "View all contacts",
             "Exit",
             "Today's Date"
           ]
         }
       ];
-      this.contacts = [];
+      this.book = new ContactController();
    }
 
    main(){
@@ -23,6 +25,9 @@ const inquirer = require('inquirer');
       switch(response.mainMenuChoice){
         case "Add new contact":
           this.addContact();
+          break;
+        case "View all contacts":
+          this.getContacts();
           break;
         case "Today's Date":
             this.getDate();
@@ -44,9 +49,35 @@ const inquirer = require('inquirer');
 
    addContact(){
        this.clear();
-       console.log('addContact called');
-       this.main();
+       inquirer.prompt(this.book.addContactQuestions).then((answers) => {
+        this.book.addContact(answers.name, answers.phone, answers.email).then((contact) => {
+          console.log("Contact added successfully!");
+          this.main();
+        }).catch((err) => {
+          console.log(err);
+          this.main();
+        });
+      });
    }
+
+   getContacts(){
+    this.clear();
+
+    this.book.getContacts().then((contacts) => {
+      for (let contact of contacts) {
+        console.log(`
+        name: ${contact.name}
+        phone number: ${contact.phone}
+        email: ${contact.email}
+        ---------------`
+        );
+      }
+      this.main();
+    }).catch((err) => {
+      console.log(err);
+      this.main();
+    });
+  }
 
    exit(){
        console.log("Thanks for using AddressBloc");
@@ -61,5 +92,9 @@ const inquirer = require('inquirer');
 
    getContactCount(){
      return this.contacts.length;
+   }
+
+   remindMe(){
+     return("Learning is a life-long pursuit");
    }
  }
